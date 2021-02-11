@@ -25,11 +25,11 @@ class Light {
     }
 }
 
-var lights = 
+var lights =
     [
-        new Light("ambient", 0.2, null, null), 
-        new Light("point", 0.6, [2,1,0], null), 
-        new Light("directional", 0.2, null, [1,4,4])
+        new Light("ambient", 0.2, null, null),
+        new Light("point", 0.6, [2, 1, 0], null),
+        new Light("directional", 0.2, null, [1, 4, 4])
     ];
 
 var spheres =
@@ -79,73 +79,69 @@ function dot(v, w) {
     return v[0] * w[0] + v[1] * w[1] + v[2] * w[2];
 }
 
-function add(v, w){
-    return [v[0] + w[0], v[1] + w[1], v[2] + w[2]]; 
+function add(v, w) {
+    return [v[0] + w[0], v[1] + w[1], v[2] + w[2]];
 }
 
 function subtract(v1, v2) {
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
 }
 
-function multiply(k, vec){
-    return [k*vec[0], k*vec[1], k*vec[2]]; 
+function multiply(k, vec) {
+    return [k * vec[0], k * vec[1], k * vec[2]];
 }
 
-function length(v){
-    return Math.sqrt(dot(v, v)); 
+function length(v) {
+    return Math.sqrt(dot(v, v));
 }
 
 function canvasToViewport(x, y) {
     return [x * (vW / cW), y * (vH / cH), d];
 }
 
-function TraceRay(O, D, t_min, t_max){
-    let closest_t = Infinity; 
-    let closest_sphere = null; 
+// ======================================================================
+//  RayTracer
+// ======================================================================
 
-    for(var x = 0; x < lights.length; x++){
+function computeLighting(P, N, V, s) {
+    let i = 0.0;
+
+    for (var x = 0; x < lights.length; x++) {
         //console.log(x); 
-        var light = lights[x]; 
+        var light = lights[x];
 
-        if(light.type == "ambient")
-        {
-            i += light.intensity; 
+        if (light.type == "ambient") {
+            i += light.intensity;
         }
-        else
-        {
-            let L = null; 
-            if(light.type == "point")
-            {
-                L = subtract(light.position, P); 
+        else {
+            let L = null;
+            if (light.type == "point") {
+                L = subtract(light.position, P);
             }
-            else
-            {
-                L = light.direction; 
+            else {
+                L = light.direction;
             }
-            
-            let n_dot_1 = dot(N, L); 
 
-            if(n_dot_1 > 0)
-            {
-                i += light.intensity * n_dot_1 / (1.0 * length(L)); 
+            let n_dot_1 = dot(N, L);
+
+            if (n_dot_1 > 0) {
+                i += light.intensity * n_dot_1 / (1.0 * length(L));
             }
 
             // Specular
-            if(s != -1)
-            {
-                var R = subtract(multiply(2.0*dot(N, L), N),  L); 
+            if (s != -1) {
+                var R = subtract(multiply(2.0 * dot(N, L), N), L);
 
-                r_dot_v = dot(R, V); 
+                r_dot_v = dot(R, V);
 
-                if(r_dot_v > 0)
-                {
-                    i += light.intensity * Math.pow(r_dot_v/(length(R) * length(V)), s); 
+                if (r_dot_v > 0) {
+                    i += light.intensity * Math.pow(r_dot_v / (length(R) * length(V)), s);
                 }
             }
         }
     }
 
-    return i; 
+    return i;
 }
 
 function TraceRay(O, D, t_min, t_max) {
@@ -170,11 +166,11 @@ function TraceRay(O, D, t_min, t_max) {
         return [0, 0, 0];
     }
 
-    var P = add(O, multiply(closest_t, D)); 
-    var N = subtract(P, closest_sphere.center); 
+    var P = add(O, multiply(closest_t, D));
+    var N = subtract(P, closest_sphere.center);
 
-    N = multiply(1.0 / length(N), N);  
-    console.log(closest_sphere.specular); 
+    N = multiply(1.0 / length(N), N);
+    console.log(closest_sphere.specular);
     return multiply(computeLighting(P, N, -D, closest_sphere.specular), closest_sphere.color);
 }
 
@@ -196,12 +192,12 @@ function IntersectRaySphere(O, D, sphere) {
 
 
 
-for(var x = -canvas.width/2; x < canvas.width/2; x++){
-    for(var y = -canvas.height/2; y < canvas.height/2; y++){
+for (var x = -canvas.width / 2; x < canvas.width / 2; x++) {
+    for (var y = -canvas.height / 2; y < canvas.height / 2; y++) {
         var direction = canvasToViewport(x, y);
-        var color = TraceRay(O, direction, 1, Infinity); 
-        
-        PutPixel(x, y, color); 
+        var color = TraceRay(O, direction, 1, Infinity);
+
+        PutPixel(x, y, color);
     }
 }
 
