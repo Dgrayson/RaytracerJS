@@ -99,12 +99,9 @@ function canvasToViewport(x, y) {
     return [x * (vW / cW), y * (vH / cH), d];
 }
 
-// ======================================================================
-//  RayTracer
-// ======================================================================
-
-function computeLighting(P, N, V, s){
-    let i = 0.0; 
+function TraceRay(O, D, t_min, t_max){
+    let closest_t = Infinity; 
+    let closest_sphere = null; 
 
     for(var x = 0; x < lights.length; x++){
         //console.log(x); 
@@ -199,12 +196,12 @@ function IntersectRaySphere(O, D, sphere) {
 
 
 
-for (var x = -canvas.width / 2; x < canvas.width / 2; x++) {
-    for (var y = -canvas.height / 2; y < canvas.height / 2; y++) {
+for(var x = -canvas.width/2; x < canvas.width/2; x++){
+    for(var y = -canvas.height/2; y < canvas.height/2; y++){
         var direction = canvasToViewport(x, y);
-        var color = TraceRay(O, direction, 1, Infinity);
-
-        PutPixel(x, y, color);
+        var color = TraceRay(O, direction, 1, Infinity); 
+        
+        PutPixel(x, y, color); 
     }
 }
 
